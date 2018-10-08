@@ -7,19 +7,26 @@ fun main(args: Array<String>) {
     val from = Instant.parse("2018-10-08T15:00:00Z")
     val to = Instant.parse("2018-10-08T15:00:10Z")
     val queue = LinkedList<QuestionData>()
-    SOScraper(queue).scrape(from, to) // TODO thread for queue
+    Thread { SOScraper(queue).scrape(from, to) }.start()
+    while (true) {
+        if (queue.isNotEmpty()) {
+            println(queue.poll())
+        }
+        Thread.sleep(100)
+    }
 }
-
+//TODO use question ids instead of date ranges
 class SOScraper(val outputQueue: Queue<QuestionData>) {
 
-    val MIN_BACKOFF_SECONDS = 5
+    val MIN_BACKOFF_MS = 5
     val API_URL = "https://api.stackexchange.com/2.2/questions"
 
     val params = mutableMapOf(
             "site" to "stackoverflow",
             "sort" to "creation",
             "order" to "desc",
-            "pagesize" to "100"
+            "pagesize" to "100",
+            "filter" to "!gB7l(.eUN4A78AG1cjy.Zxgd3gyfuKaZ(XE"
     )
     val stepSize = 10000 // in ms
 
@@ -38,7 +45,9 @@ class SOScraper(val outputQueue: Queue<QuestionData>) {
             }
 
             from += stepSize
-            val backoff = (if (json.has("backoff")) json.getInt("backoff") else MIN_BACKOFF_SECONDS) * 1000
+            var backoff = MIN_BACKOFF_MS
+            if (json.has("backoff"))
+                backoff = json.getInt("backoff") * 1000
             println("has_more = ${json.getBoolean("has_more")}")
             Thread.sleep(backoff.toLong())
         }
