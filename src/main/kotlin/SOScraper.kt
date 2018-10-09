@@ -1,58 +1,57 @@
 import org.json.JSONArray
 import org.json.JSONObject
-import java.time.Instant
 import java.util.*
+import java.util.logging.Logger
 
-fun main(args: Array<String>) {
-    val from = Instant.parse("2018-10-08T15:00:00Z")
-    val to = Instant.parse("2018-10-08T15:00:10Z")
-    val queue = LinkedList<QuestionData>()
-    Thread { SOScraper(queue).scrape(from, to) }.start()
-    while (true) {
-        if (queue.isNotEmpty()) {
-            println(queue.poll())
-        }
-        Thread.sleep(100)
-    }
-}
-//TODO use question ids instead of date ranges
 class SOScraper(val outputQueue: Queue<QuestionData>) {
 
-    val MIN_BACKOFF_MS = 5
-    val API_URL = "https://api.stackexchange.com/2.2/questions"
+    val logger = Logger.getLogger("SOScraper")
+
+    val API_URL = "https://api.stackexchange.com/2.2/questions/"
+    val MIN_BACKOFF_MS = 5000
 
     val params = mutableMapOf(
             "site" to "stackoverflow",
             "sort" to "creation",
             "order" to "desc",
-            "pagesize" to "100",
-            "filter" to "!gB7l(.eUN4A78AG1cjy.Zxgd3gyfuKaZ(XE"
+            "pagesize" to "100", // max is 100
+            "filter" to "!gB7l(.eUN4A78AG1cjy.Zxgd3gyfuKaZ(XE" // this is a custom filter created on the stackexchange api doc website
     )
-    val stepSize = 10000 // in ms
 
-    fun scrape(from: Instant, to: Instant) {
-        var from = from.toEpochMilli()
-        val to = to.toEpochMilli()
-        while (from < to) {
-            params["from"] = from.toString()
-            params["to"] = (from + stepSize).toString()
-            val response = khttp.get(url = API_URL, params = params)
+    fun scrape(firstId: Int, totalIds: Int) {
+        var currentId = firstId
+        val idsPerRequest = 70 // theoretical max is 100, but then URL can get too long TODO find out how high i can set this before error 400
+        var idsRequested = 0
+        while (idsRequested < totalIds) {
+            val ids = (currentId..currentId + idsPerRequest).joinToString(separator = ";")
+            val response = khttp.get(url = API_URL + ids, params = params)
+            idsRequested += idsPerRequest
+            currentId += idsPerRequest
+            logger.info("requested $idsPerRequest ids, from $currentId to ${currentId+idsPerRequest} (total $idsRequested out of $totalIds)")
+
             val json = response.jsonObject
-            println(json)
+            println(json.toString())
 
+            var queuedIds = 0
             for (item in json["items"] as JSONArray) {
                 outputQueue.offer(mapToQuestionData(item as JSONObject))
+                queuedIds++
             }
+            logger.info("offered $queuedIds items to queue, no results found for ${idsPerRequest-queuedIds} ids")
 
-            from += stepSize
+            //if (json.has("has_more")) logger.info("has_more = ${json.getBoolean("has_more")}") this should always be false if we query for specific ids
+            if (json.has("quota_remaining")) logger.info("quota_remaining = ${json.getInt("quota_remaining")}")
+
             var backoff = MIN_BACKOFF_MS
-            if (json.has("backoff"))
+            if (json.has("backoff")) {
                 backoff = json.getInt("backoff") * 1000
-            println("has_more = ${json.getBoolean("has_more")}")
+                logger.info("backoff = ${json.getInt("backoff")}")
+            }
             Thread.sleep(backoff.toLong())
         }
     }
 
+    // TODO map more stuff or just use the complete json object
     fun mapToQuestionData(json: JSONObject): QuestionData {
         val tags = arrayListOf<String>()
         json.getJSONArray("tags").forEach({ tags.add(it as String) })
