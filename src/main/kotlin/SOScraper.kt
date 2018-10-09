@@ -1,3 +1,6 @@
+import com.fasterxml.jackson.databind.ObjectMapper
+import com.fasterxml.jackson.module.kotlin.KotlinModule
+import com.fasterxml.jackson.module.kotlin.readValue
 import org.json.JSONArray
 import org.json.JSONObject
 import java.util.*
@@ -27,7 +30,7 @@ class SOScraper(val outputQueue: Queue<QuestionData>) {
             val response = khttp.get(url = API_URL + ids, params = params)
             idsRequested += idsPerRequest
             currentId += idsPerRequest
-            logger.info("requested $idsPerRequest ids, from $currentId to ${currentId+idsPerRequest} (total $idsRequested out of $totalIds)")
+            logger.info("requested $idsPerRequest ids, from $currentId to ${currentId + idsPerRequest} (total $idsRequested out of $totalIds)")
 
             val json = response.jsonObject
             println(json.toString())
@@ -37,7 +40,7 @@ class SOScraper(val outputQueue: Queue<QuestionData>) {
                 outputQueue.offer(mapToQuestionData(item as JSONObject))
                 queuedIds++
             }
-            logger.info("offered $queuedIds items to queue, no results found for ${idsPerRequest-queuedIds} ids")
+            logger.info("offered $queuedIds items to queue, no results found for ${idsPerRequest - queuedIds} ids")
 
             //if (json.has("has_more")) logger.info("has_more = ${json.getBoolean("has_more")}") this should always be false if we query for specific ids
             if (json.has("quota_remaining")) logger.info("quota_remaining = ${json.getInt("quota_remaining")}")
@@ -51,23 +54,8 @@ class SOScraper(val outputQueue: Queue<QuestionData>) {
         }
     }
 
-    // TODO map more stuff or just use the complete json object
     fun mapToQuestionData(json: JSONObject): QuestionData {
-        val tags = arrayListOf<String>()
-        json.getJSONArray("tags").forEach({ tags.add(it as String) })
-        return QuestionData(
-                id = json.getLong("question_id"),
-                title = json.getString("title"),
-                link = json.getString("link"),
-                score = json.getInt("score"),
-                isAnswered = json.getBoolean("is_answered"),
-                answerCount = json.getInt("answer_count"),
-                creationDate = json.getLong("creation_date"),
-                viewCount = json.getInt("view_count"),
-                userId = json.getJSONObject("owner").getLong("user_id"),
-                userName = json.getJSONObject("owner").getString("display_name"),
-                userReputation = json.getJSONObject("owner").getInt("reputation"),
-                tags = tags
-        )
+        val mapper = ObjectMapper().registerModule(KotlinModule())
+        return mapper.readValue<QuestionData>(json.toString())
     }
 }
