@@ -7,8 +7,26 @@ fun main(args: Array<String>) {
     Thread { SOScraper(queue).scrape(firstId, totalIds) }.start()
     while (true) {
         if (queue.isNotEmpty()) {
-            println(queue.poll()) // TODO save this stuff to mongoDB or sth
+            println(minimizeQuestionData(queue.poll())) // TODO save this stuff to mongoDB or sth
         }
         Thread.sleep(100)
     }
+}
+
+fun minimizeQuestionData(questionData: QuestionData): String {
+    val sb = StringBuilder()
+    sb.append(questionData.questionId)
+    sb.append(";")
+    sb.append(questionData.title)
+    sb.append(";")
+    sb.append(questionData.answerCount)
+    sb.append(";")
+    sb.append(questionData.isAnswered)
+    sb.append(";")
+    sb.append(questionData.score)
+    sb.append(";")
+    sb.append(questionData.viewCount)
+    sb.append(";")
+    sb.append(questionData.tags)
+    return sb.toString()
 }
