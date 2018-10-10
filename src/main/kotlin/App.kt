@@ -7,7 +7,7 @@ fun main(args: Array<String>) {
     Thread { SOScraper(queue).scrape(firstId, totalIds) }.start()
     while (true) {
         if (queue.isNotEmpty()) {
-            println(minimizeQuestionData(queue.poll())) // TODO save this stuff to mongoDB or sth
+            //println(minimizeQuestionData(queue.poll())) // TODO save this stuff to mongoDB or sth
         }
         Thread.sleep(100)
     }

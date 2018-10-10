@@ -23,7 +23,7 @@ class SOScraper(val outputQueue: Queue<QuestionData>) {
 
     fun scrape(firstId: Int, totalIds: Int) {
         var currentId = firstId
-        val idsPerRequest = 70 // theoretical max is 100, but then URL can get too long TODO find out how high i can set this before error 400
+        val idsPerRequest = 99 // theoretical max is 100, but then URL is too long, so i just use 99
         var idsRequested = 0
         while (idsRequested < totalIds) {
             val ids = (currentId..currentId + idsPerRequest).joinToString(separator = ";")
