@@ -3,15 +3,14 @@ import com.fasterxml.jackson.module.kotlin.KotlinModule
 import com.fasterxml.jackson.module.kotlin.readValue
 import org.json.JSONArray
 import org.json.JSONObject
-import java.util.*
 import java.util.logging.Logger
 
-class SOScraper(val outputQueue: Queue<QuestionData>) {
+class SOScraper(val soScraperListener: SOScraperListener) {
 
     val logger = Logger.getLogger("SOScraper")
 
     val API_URL = "https://api.stackexchange.com/2.2/questions/"
-    val MIN_BACKOFF_MS = 5000
+    val MIN_BACKOFF_MS = 1000
 
     val params = mutableMapOf(
             "site" to "stackoverflow",
@@ -37,7 +36,7 @@ class SOScraper(val outputQueue: Queue<QuestionData>) {
 
             var queuedIds = 0
             for (item in json["items"] as JSONArray) {
-                outputQueue.offer(mapToQuestionData(item as JSONObject))
+                soScraperListener.receivedQuestionData(mapToQuestionData(item as JSONObject))
                 queuedIds++
             }
             logger.info("offered $queuedIds items to queue, no results found for ${idsPerRequest - queuedIds} ids")
@@ -52,6 +51,7 @@ class SOScraper(val outputQueue: Queue<QuestionData>) {
             }
             Thread.sleep(backoff.toLong())
         }
+        soScraperListener.done()
     }
 
     fun mapToQuestionData(json: JSONObject): QuestionData {

@@ -1,6 +1,6 @@
 class NetworkCreator {
 
-    private var tags = hashMapOf<String, Int>()
+    private var tags = HashMap<String, Int>()
     private var questionNodes = mutableListOf<String>()
     private var edges = mutableListOf<String>()
 
@@ -26,7 +26,11 @@ class NetworkCreator {
         return tagNodes
     }
 
-    fun questionDataToCsv(questionData: QuestionData): String {
+    fun getEdges(): List<String> {
+        return edges
+    }
+
+    private fun questionDataToCsv(questionData: QuestionData): String {
         val sb = StringBuilder()
         sb.append(questionData.questionId)
         sb.append(";")
