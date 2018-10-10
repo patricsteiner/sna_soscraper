@@ -1,16 +1,20 @@
+package exporter
+
+import data.Question
+
 class NetworkCreator {
 
     private var tags = HashMap<String, Int>()
     private var questionNodes = mutableListOf<String>()
     private var edges = mutableListOf<String>()
 
-    fun addQuestionData(questionData: QuestionData) {
-        questionNodes.add(questionDataToCsv(questionData))
-        for (tag in questionData.tags) {
+    fun addQuestionData(question: Question) {
+        questionNodes.add(questionDataToCsv(question))
+        for (tag in question.tags) {
             if (!tags.containsKey(tag)) {
                 tags.put(tag, tags.size)
             }
-            edges.add(questionData.questionId.toString() + ";" + tags[tag])
+            edges.add(question.questionId.toString() + ";" + tags[tag])
         }
     }
 
@@ -30,19 +34,19 @@ class NetworkCreator {
         return edges
     }
 
-    private fun questionDataToCsv(questionData: QuestionData): String {
+    private fun questionDataToCsv(question: Question): String {
         val sb = StringBuilder()
-        sb.append(questionData.questionId)
+        sb.append(question.questionId)
         sb.append(";")
-        sb.append(questionData.title)
+        sb.append(question.title)
         sb.append(";")
-        sb.append(questionData.answerCount)
+        sb.append(question.answerCount)
         sb.append(";")
-        sb.append(questionData.isAnswered)
+        sb.append(question.isAnswered)
         sb.append(";")
-        sb.append(questionData.score)
+        sb.append(question.score)
         sb.append(";")
-        sb.append(questionData.viewCount)
+        sb.append(question.viewCount)
         return sb.toString()
     }
 }

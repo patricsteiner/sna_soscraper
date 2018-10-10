@@ -1,4 +1,10 @@
-import java.io.File
+import data.Question
+import data.QuestionRepository
+import data.TagRepository
+import exporter.EdgeTableExporter
+import exporter.NodeTableExporter
+import scraper.SOScraper
+import scraper.SOScraperListener
 
 fun main(args: Array<String>) {
     App.run()
@@ -6,7 +12,8 @@ fun main(args: Array<String>) {
 
 object App : SOScraperListener {
 
-    val networkCreator = NetworkCreator()
+    val questionRepository = QuestionRepository()
+    val tagRepository = TagRepository()
 
     fun run() {
         val firstId = 52720304
@@ -15,25 +22,15 @@ object App : SOScraperListener {
         scraper.scrape(firstId, totalIds)
     }
 
-    override fun receivedQuestionData(questionData: QuestionData) {
-        networkCreator.addQuestionData(questionData)
+    override fun receivedQuestion(question: Question) {
+        questionRepository.save(question)
+        question.tags.forEach { tagRepository.save(it) }
     }
 
     override fun done() {
-        File("nodes.csv").printWriter().use { out ->
-            out.println("Id;title;answerCount;isAnswered;score;viewCount")
-            networkCreator.getQuestionNodes().forEach {
-                out.println(it)
-            }
-            networkCreator.getTagNodes().forEach {
-                out.println(it)
-            }
-        }
-        File("edges.csv").printWriter().use { out ->
-            out.println("Source;Target")
-            networkCreator.getEdges().forEach {
-                out.println(it)
-            }
-        }
+        val nodeTableExporter = NodeTableExporter(questionRepository, tagRepository)
+        nodeTableExporter.export("nodes.csv")
+        val edgeTableExporter = EdgeTableExporter(questionRepository, tagRepository)
+        edgeTableExporter.export("edges.csv")
     }
 }

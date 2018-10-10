@@ -1,13 +1,16 @@
+package scraper
+
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.module.kotlin.KotlinModule
 import com.fasterxml.jackson.module.kotlin.readValue
+import data.Question
 import org.json.JSONArray
 import org.json.JSONObject
 import java.util.logging.Logger
 
 class SOScraper(val soScraperListener: SOScraperListener) {
 
-    val logger = Logger.getLogger("SOScraper")
+    val logger = Logger.getLogger("scraper.SOScraper")
 
     val API_URL = "https://api.stackexchange.com/2.2/questions/"
     val MIN_BACKOFF_MS = 1000
@@ -36,7 +39,7 @@ class SOScraper(val soScraperListener: SOScraperListener) {
 
             var queuedIds = 0
             for (item in json["items"] as JSONArray) {
-                soScraperListener.receivedQuestionData(mapToQuestionData(item as JSONObject))
+                soScraperListener.receivedQuestion(mapToQuestionData(item as JSONObject))
                 queuedIds++
             }
             logger.info("offered $queuedIds items to queue, no results found for ${idsPerRequest - queuedIds} ids")
@@ -54,8 +57,8 @@ class SOScraper(val soScraperListener: SOScraperListener) {
         soScraperListener.done()
     }
 
-    fun mapToQuestionData(json: JSONObject): QuestionData {
+    fun mapToQuestionData(json: JSONObject): Question {
         val mapper = ObjectMapper().registerModule(KotlinModule())
-        return mapper.readValue<QuestionData>(json.toString())
+        return mapper.readValue<Question>(json.toString())
     }
 }

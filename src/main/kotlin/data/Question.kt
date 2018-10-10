@@ -1,6 +1,8 @@
+package data
+
 import com.fasterxml.jackson.annotation.JsonProperty
 
-data class QuestionData(
+data class Question(
         @JsonProperty("owner") val owner: Owner,
         @JsonProperty("comment_count") val commentCount: Int,
         @JsonProperty("link") val link: String,
