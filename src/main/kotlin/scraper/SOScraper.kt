@@ -20,7 +20,7 @@ class SOScraper(val soScraperListener: SOScraperListener) {
             "sort" to "creation",
             "order" to "desc",
             "pagesize" to "100", // max is 100
-            "filter" to "!gB7l(.eUN4A78AG1cjy.Zxgd3gyfuKaZ(XE" // this is a custom filter created on the stackexchange api doc website
+            "filter" to "!gB7l(.eUN4A78AG1cjy.Zxgd3gyfuKaZ(XE" // this is a custom filter created on the stackexchange api doc website that delivers the data as defined in Question.kt
     )
 
     fun scrape(firstId: Int, totalIds: Int) {
