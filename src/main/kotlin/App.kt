@@ -16,8 +16,8 @@ object App : SOScraperListener {
     val tagRepository = TagRepository()
 
     fun run() {
-        val firstId = 52720304
-        val totalIds = 150
+        val firstId = 52721888
+        val totalIds = 100
         val scraper = SOScraper(this)
         scraper.scrape(firstId, totalIds)
     }

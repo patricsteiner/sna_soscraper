@@ -18,7 +18,9 @@ data class Question(
         @JsonProperty("favorite_count") val favoriteCount: Int,
         @JsonProperty("is_answered") val isAnswered: Boolean,
         @JsonProperty("close_vote_count") val closeVoteCount: Int,
-        @JsonProperty("view_count") val viewCount: Long
+        @JsonProperty("view_count") val viewCount: Long,
+        @JsonProperty("bounty_amount") val bountyAmount: Int,
+        @JsonProperty("bounty_closes_date") val bountyClosesDate: Long
 )
 
 data class Owner(
