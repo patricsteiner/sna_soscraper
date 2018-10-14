@@ -5,7 +5,7 @@ import data.QuestionRepository
 import data.TagRepository
 import java.io.File
 
-class NodeTableExporter(val questionRepository: QuestionRepository, val tagRepository: TagRepository) {
+class NodeTableExporter(private val questionRepository: QuestionRepository, private val tagRepository: TagRepository) {
 
     fun export(path: String) {
         File(path).printWriter().use { out ->

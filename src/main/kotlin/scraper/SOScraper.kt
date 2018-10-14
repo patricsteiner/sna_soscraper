@@ -9,7 +9,7 @@ import org.json.JSONArray
 import org.json.JSONObject
 import java.util.logging.Logger
 
-class SOScraper(val soScraperListener: SOScraperListener) {
+class SOScraper(private val soScraperListener: SOScraperListener) {
 
     private val logger = Logger.getLogger("scraper.SOScraper")
 
@@ -24,31 +24,31 @@ class SOScraper(val soScraperListener: SOScraperListener) {
             "filter" to "!gB7l(.eUN4A78AG1cjy.Zxgd3gyfuKaZ(XE" // this is a custom filter created on the stackexchange api doc website that delivers the data as defined in Question.kt
     )
 
-    fun scrape(firstId: Int, totalIds: Int) { // TODO only return when there are n questions found (as opposed to n tries)
+    // can return idsPerRequest-1 question more than numberOfQuestions
+    fun scrape(firstId: Int, numberOfQuestions: Int) {
         var currentId = firstId
         val idsPerRequest = 99 // theoretical max is 100, but then URL is too long, so i just use 99
-        var idsRequested = 0
-        while (idsRequested < totalIds) {
+        var totalReceivedQuestions = 0
+        while (totalReceivedQuestions < numberOfQuestions) {
             val ids = (currentId..currentId + idsPerRequest).joinToString(separator = ";")
             val response = khttp.get(url = API_URL + ids, params = params)
-            idsRequested += idsPerRequest
             currentId += idsPerRequest
-            logger.info("requested $idsPerRequest ids, from $currentId to ${currentId + idsPerRequest} (total $idsRequested out of $totalIds)")
 
             val json = response.jsonObject
             println(json.toString())
 
-            var nReceivedQuestions = 0
+            var receivedQuestions = 0
             for (item in json["items"] as JSONArray) {
                 try {
                     val question = mapToQuestionData(item as JSONObject)
                     soScraperListener.receivedQuestion(question)
-                    nReceivedQuestions++
+                    receivedQuestions++
                 } catch (e: MissingKotlinParameterException) {
                     // ignore it when there is incomplete information
                 }
             }
-            logger.info("received $nReceivedQuestions items, no results found for ${idsPerRequest - nReceivedQuestions} ids")
+            totalReceivedQuestions += receivedQuestions
+            logger.info("Received $receivedQuestions questions, no results found for ${idsPerRequest - receivedQuestions} ids. Total received: $totalReceivedQuestions")
 
             //if (json.has("has_more")) logger.info("has_more = ${json.getBoolean("has_more")}") this should always be false if we query for specific ids
             if (json.has("quota_remaining")) logger.info("quota_remaining = ${json.getInt("quota_remaining")}")

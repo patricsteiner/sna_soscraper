@@ -18,7 +18,7 @@ object App : SOScraperListener {
     val tagRepository = TagRepository()
 
     fun run() {
-        val firstId = 52721888
+        val firstId = 52720000
         val totalIds = 1000
         val scraper = SOScraper(this)
         scraper.scrape(firstId, totalIds)
@@ -26,7 +26,12 @@ object App : SOScraperListener {
 
     override fun receivedQuestion(question: Question) {
         questionRepository.save(question)
-        question.tags.forEach { tagRepository.save(it) }
+        question.tags.forEach { tagRepository.save(
+                it,
+                question.viewCount,
+                question.isAnswered,
+                question.bountyAmount
+        ) }
     }
 
     override fun done() {
@@ -36,7 +41,7 @@ object App : SOScraperListener {
         edgeTableExporter.export("edges.csv")*/
         val oneModeNodeTableExporter = OneModeNodeTableExporter(tagRepository)
         val oneModeEdgeTableExporter = OneModeEdgeTableExporter(questionRepository, tagRepository)
-        oneModeEdgeTableExporter.export("edges.csv")
-        oneModeNodeTableExporter.export("nodes.csv")
+        oneModeEdgeTableExporter.export("edges2.csv")
+        oneModeNodeTableExporter.export("nodes2.csv")
     }
 }

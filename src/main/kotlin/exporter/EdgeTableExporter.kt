@@ -4,7 +4,7 @@ import data.QuestionRepository
 import data.TagRepository
 import java.io.File
 
-class EdgeTableExporter(val questionRepository: QuestionRepository, val tagRepository: TagRepository) {
+class EdgeTableExporter(private val questionRepository: QuestionRepository, private val tagRepository: TagRepository) {
 
     private val header = "Source;Target"
 
