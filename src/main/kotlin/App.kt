@@ -8,6 +8,14 @@ import exporter.OneModeNodeTableExporter
 import scraper.SOScraper
 import scraper.SOScraperListener
 
+
+/*
+TODO
+- Extract, Transform, Load --> seperate classes or sth
+- maybe use real db instead of in-memory
+- more data analysis after Extract, use visualization tools
+- compare different networks (diff tags? different times? what time is best to post a question? things like that)
+ */
 fun main(args: Array<String>) {
     App.run()
 }
