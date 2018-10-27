@@ -1,7 +1,7 @@
-package exporter
+package ch.fhnw.sna.soscraper.infrastructure.exporter
 
-import data.QuestionRepository
-import data.TagRepository
+import ch.fhnw.sna.soscraper.domain.QuestionRepository
+import ch.fhnw.sna.soscraper.domain.TagRepository
 import java.io.File
 
 class EdgeTableExporter(private val questionRepository: QuestionRepository, private val tagRepository: TagRepository) {

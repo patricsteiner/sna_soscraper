@@ -1,4 +1,4 @@
-package data
+package ch.fhnw.sna.soscraper.domain
 
 import com.fasterxml.jackson.annotation.JsonProperty
 

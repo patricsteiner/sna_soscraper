@@ -1,0 +1,13 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" th:fragment="maincontent(content)">
+<head>
+    <title>SNA Stackoverflow Scraper</title>
+</head>
+
+<body>
+<div th:replace="~{header :: header}">header</div>
+<div th:replace="${content}">content</div>
+<div th:replace="~{footer :: footer}">footer</div>
+</body>
+
+</html>

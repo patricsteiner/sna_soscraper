@@ -1,0 +1,15 @@
+<!DOCTYPE html>
+<html th:replace="~{layout :: maincontent(~{::section})}">
+
+<body>
+<section>
+
+    <div th:each="question : ${questions}">
+        <span th:text="${question.title}"></span>
+    </div>
+
+</section>
+
+</body>
+
+</html>

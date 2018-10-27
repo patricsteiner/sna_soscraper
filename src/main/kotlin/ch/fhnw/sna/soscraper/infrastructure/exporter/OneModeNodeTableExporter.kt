@@ -1,6 +1,6 @@
-package exporter
+package ch.fhnw.sna.soscraper.infrastructure.exporter
 
-import data.TagRepository
+import ch.fhnw.sna.soscraper.domain.TagRepository
 import java.io.File
 
 class OneModeNodeTableExporter(private val tagRepository: TagRepository) {
@@ -11,7 +11,7 @@ class OneModeNodeTableExporter(private val tagRepository: TagRepository) {
             out.println(header)
             tagRepository.findAll().forEach {
                 val unanswered = it.value.occurence - it.value.answered
-                val answeredRatio = it.value.answered.toFloat()/it.value.occurence
+                val answeredRatio = it.value.answered.toFloat() / it.value.occurence
                 out.println(it.value.id.toString() + ";"
                         + it.key + ";"
                         + it.value.occurence.toString() + ";"

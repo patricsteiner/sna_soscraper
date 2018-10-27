@@ -1,17 +1,21 @@
-package scraper
+package ch.fhnw.sna.soscraper.infrastructure.services
 
+import ch.fhnw.sna.soscraper.domain.Question
+import ch.fhnw.sna.soscraper.domain.QuestionRepository
+import ch.fhnw.sna.soscraper.domain.TagRepository
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.module.kotlin.KotlinModule
 import com.fasterxml.jackson.module.kotlin.MissingKotlinParameterException
 import com.fasterxml.jackson.module.kotlin.readValue
-import data.Question
 import org.json.JSONArray
 import org.json.JSONObject
+import org.springframework.stereotype.Service
 import java.util.logging.Logger
 
-class SOScraper(private val soScraperListener: SOScraperListener) {
+@Service
+class SOScraper(val questionRepository: QuestionRepository, val tagRepository: TagRepository) {
 
-    private val logger = Logger.getLogger("scraper.SOScraper")
+    private val logger = Logger.getLogger("ch.fhnw.sna.soscraper.infrastructure.services.SOScraper")
 
     private val API_URL = "https://api.stackexchange.com/2.2/questions/"
     private val MIN_BACKOFF_MS = 100
@@ -40,8 +44,14 @@ class SOScraper(private val soScraperListener: SOScraperListener) {
             var receivedQuestions = 0
             for (item in json["items"] as JSONArray) {
                 try {
-                    val question = mapToQuestionData(item as JSONObject)
-                    soScraperListener.receivedQuestion(question)
+                    val question = mapToQuestion(item as JSONObject)
+                    questionRepository.save(question)
+                    question.tags.forEach { tagRepository.save(
+                            it,
+                            question.viewCount,
+                            question.isAnswered,
+                            question.bountyAmount
+                    ) }
                     receivedQuestions++
                 } catch (e: MissingKotlinParameterException) {
                     // ignore it when there is incomplete information
@@ -60,11 +70,11 @@ class SOScraper(private val soScraperListener: SOScraperListener) {
             }
             Thread.sleep(backoff.toLong())
         }
-        soScraperListener.done()
     }
 
-    private fun mapToQuestionData(json: JSONObject): Question {
+    private fun mapToQuestion(json: JSONObject): Question {
         val mapper = ObjectMapper().registerModule(KotlinModule())
         return mapper.readValue(json.toString())
     }
+
 }

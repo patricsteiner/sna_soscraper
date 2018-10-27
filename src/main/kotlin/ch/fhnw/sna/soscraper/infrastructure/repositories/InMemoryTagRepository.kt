@@ -1,13 +1,15 @@
-package data
+package ch.fhnw.sna.soscraper.infrastructure.repositories
 
-/**
- * Each tag is unique by name and has an index/id
- */
-class TagRepository {
+import ch.fhnw.sna.soscraper.domain.TagData
+import ch.fhnw.sna.soscraper.domain.TagRepository
+import org.springframework.stereotype.Repository
+
+@Repository
+class InMemoryTagRepository : TagRepository {
 
     private val data = HashMap<String, TagData>()
 
-    fun save(tag: String, views: Long, isAnswered: Boolean, bounty: Int): TagData {
+    override fun save(tag: String, views: Long, isAnswered: Boolean, bounty: Int): TagData {
         if (!data.containsKey(tag)) {
             data[tag] = TagData(data.size, 1, views, if (isAnswered) 1 else 0, bounty)
         } else {
@@ -20,14 +22,12 @@ class TagRepository {
         return data[tag]!!
     }
 
-    fun find(tag: String): TagData? {
+    override fun find(tag: String): TagData? {
         return data[tag]
     }
 
-    fun findAll(): HashMap<String, TagData> {
+    override fun findAll(): HashMap<String, TagData> {
         return data
     }
-
-    data class TagData(val id: Int, var occurence: Long, var views: Long, var answered: Long, var bounty: Int)
 
 }
