@@ -28,12 +28,11 @@ class SOScraper(val questionRepository: QuestionRepository, val tagRepository: T
             "filter" to "!gB7l(.eUN4A78AG1cjy.Zxgd3gyfuKaZ(XE" // this is a custom filter created on the stackexchange api doc website that delivers the data as defined in Question.kt
     )
 
-    // can return idsPerRequest-1 question more than numberOfQuestions
-    fun scrape(firstId: Int, numberOfQuestions: Int) {
+    fun scrape(firstId: Int, amount: Int) {
         var currentId = firstId
-        val idsPerRequest = 99 // theoretical max is 100, but then URL is too long, so i just use 99
+        val idsPerRequest = 99 // theoretical max is 100, but then URL can get too long, so i just use 99
         var totalReceivedQuestions = 0
-        while (totalReceivedQuestions < numberOfQuestions) {
+        while (totalReceivedQuestions < amount) {
             val ids = (currentId..currentId + idsPerRequest).joinToString(separator = ";")
             val response = khttp.get(url = API_URL + ids, params = params)
             currentId += idsPerRequest
@@ -44,15 +43,11 @@ class SOScraper(val questionRepository: QuestionRepository, val tagRepository: T
             var receivedQuestions = 0
             for (item in json["items"] as JSONArray) {
                 try {
-                    val question = mapToQuestion(item as JSONObject)
-                    questionRepository.save(question)
-                    question.tags.forEach { tagRepository.save(
-                            it,
-                            question.viewCount,
-                            question.isAnswered,
-                            question.bountyAmount
-                    ) }
+                    handleQuestion(item as JSONObject)
                     receivedQuestions++
+                    if (receivedQuestions + totalReceivedQuestions >= amount) {
+                        break
+                    }
                 } catch (e: MissingKotlinParameterException) {
                     // ignore it when there is incomplete information
                 }
@@ -72,9 +67,18 @@ class SOScraper(val questionRepository: QuestionRepository, val tagRepository: T
         }
     }
 
-    private fun mapToQuestion(json: JSONObject): Question {
+    private fun handleQuestion(item: JSONObject) {
         val mapper = ObjectMapper().registerModule(KotlinModule())
-        return mapper.readValue(json.toString())
+        val question : Question = mapper.readValue(item.toString())
+        questionRepository.save(question)
+        question.tags.forEach {
+            tagRepository.save(
+                    it,
+                    question.viewCount,
+                    question.isAnswered,
+                    question.bountyAmount
+            )
+        }
     }
 
 }

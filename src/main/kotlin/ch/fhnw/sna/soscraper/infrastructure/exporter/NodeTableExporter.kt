@@ -7,16 +7,18 @@ import java.io.File
 
 class NodeTableExporter(private val questionRepository: QuestionRepository, private val tagRepository: TagRepository) {
 
-    fun export(path: String) {
-        File(path).printWriter().use { out ->
+    fun export() : File {
+        val file = File("nodes.csv")
+        file.printWriter().use { out ->
             out.println(header)
             tagRepository.findAll().forEach {
-                out.println(it.value.toString() + ";" + it.key + ";tag;;;;;;")
+                out.println(it.value.id.toString() + ";" + it.key + ";tag;;;;;;")
             }
             questionRepository.findAll().forEach {
                 out.println(questionToCsv(it))
             }
         }
+        return file
     }
 
     // header must correlate with fun questionToCsv + Id/Label at the start (Gephi convention) + type (question/tag)

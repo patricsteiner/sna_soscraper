@@ -8,15 +8,17 @@ class EdgeTableExporter(private val questionRepository: QuestionRepository, priv
 
     private val header = "Source;Target"
 
-    fun export(path: String) {
-        File(path).printWriter().use { out ->
+    fun export() : File {
+        val file = File("edges.csv")
+        file.printWriter().use { out ->
             out.println(header)
             questionRepository.findAll().forEach {question ->
                 question.tags.forEach { tag ->
-                    out.println(question.questionId.toString() + ";" + tagRepository.find(tag))
+                    out.println(question.questionId.toString() + ";" + tagRepository.find(tag)?.id)
                 }
             }
         }
+        return file
     }
 
 }

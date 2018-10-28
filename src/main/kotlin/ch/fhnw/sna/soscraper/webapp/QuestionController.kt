@@ -4,7 +4,11 @@ import ch.fhnw.sna.soscraper.domain.Owner
 import ch.fhnw.sna.soscraper.domain.Question
 import ch.fhnw.sna.soscraper.domain.QuestionRepository
 import ch.fhnw.sna.soscraper.domain.TagRepository
+import ch.fhnw.sna.soscraper.infrastructure.exporter.EdgeTableExporter
+import ch.fhnw.sna.soscraper.infrastructure.exporter.NodeTableExporter
 import ch.fhnw.sna.soscraper.infrastructure.services.SOScraper
+import org.springframework.core.io.FileSystemResource
+import org.springframework.http.MediaType
 import org.springframework.stereotype.Controller
 import org.springframework.ui.Model
 import org.springframework.web.bind.annotation.*
@@ -13,7 +17,7 @@ import org.springframework.web.bind.annotation.*
 class QuestionController(val questionRepository: QuestionRepository, val tagRepository: TagRepository, val soScraper: SOScraper) {
 
     @GetMapping
-    fun index(model : Model): String {
+    fun index(model: Model): String {
         val questions = questionRepository.findAll()
         model.addAttribute("questions", questions)
         return "index"
@@ -25,10 +29,24 @@ class QuestionController(val questionRepository: QuestionRepository, val tagRepo
         return "redirect:/"
     }
 
-    @GetMapping("/scrape")
-    fun scrape(@RequestParam("id", defaultValue = "52720000") id: Int, @RequestParam("amount", defaultValue = "10") amount: Int): String {
-        soScraper.scrape(id, amount)
+    @PostMapping("/scrape")
+    fun scrape(@RequestParam firstId: Int, @RequestParam amount: Int): String {
+        soScraper.scrape(firstId, amount)
         return "redirect:/"
+    }
+
+    @GetMapping("/export/nodes", produces = [MediaType.APPLICATION_OCTET_STREAM_VALUE])
+    @ResponseBody
+    fun exportNodes(): FileSystemResource {
+        val nodeTableExporter = NodeTableExporter(questionRepository, tagRepository)
+        return FileSystemResource(nodeTableExporter.export())
+    }
+
+    @GetMapping("/export/edges", produces = [MediaType.APPLICATION_OCTET_STREAM_VALUE])
+    @ResponseBody
+    fun exportEdges(): FileSystemResource {
+        val edgeTableExporter = EdgeTableExporter(questionRepository, tagRepository)
+        return FileSystemResource(edgeTableExporter.export())
     }
 
 }

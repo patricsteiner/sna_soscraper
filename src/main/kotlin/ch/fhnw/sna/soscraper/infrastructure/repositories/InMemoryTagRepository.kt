@@ -26,7 +26,7 @@ class InMemoryTagRepository : TagRepository {
         return data[tag]
     }
 
-    override fun findAll(): HashMap<String, TagData> {
+    override fun findAll(): Map<String, TagData> {
         return data
     }
 

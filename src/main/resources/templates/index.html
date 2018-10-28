@@ -3,11 +3,37 @@
 
 <body>
 <section>
-
-    <div th:each="question : ${questions}">
-        <span th:text="${question.title}"></span>
-    </div>
-
+    <hr>
+<h2>Question overview</h2>
+    <form th:action="@{/scrape}" method="post">
+        <input type="number" name="firstId" placeholder="first id to be scraped" required value="52720000"/>
+        <input type="number" name="amount" placeholder="amount of questions" required value="10"/>
+        <input type="submit" value="scrape" />
+    </form>
+    <a th:href="@{/export/nodes}">export nodes</a>
+    <a th:href="@{/export/edges}">export edges</a>
+    <hr>
+    <table>
+        <thead>
+        <tr>
+            <th>Id</th>
+            <th>Question</th>
+            <th>Score</th>
+            <th>Creation date</th>
+            <th>Tags</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr th:each="question : ${questions}">
+            <td th:text="${question.questionId}"></td>
+            <td th:text="${question.title}"></td>
+            <td th:text="${question.score}"></td>
+            <td th:text="${question.creationDate}"></td>
+            <td th:text="${question.tags}"></td>
+        </tr>
+        </tbody>
+    </table>
+    <hr>
 </section>
 
 </body>
