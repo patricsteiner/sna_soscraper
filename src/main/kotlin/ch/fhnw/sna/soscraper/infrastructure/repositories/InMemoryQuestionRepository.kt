@@ -4,8 +4,12 @@ import ch.fhnw.sna.soscraper.domain.Question
 import ch.fhnw.sna.soscraper.domain.QuestionRepository
 import org.springframework.stereotype.Repository
 
-@Repository
+//@Repository
 class InMemoryQuestionRepository : QuestionRepository {
+
+    fun findMaxId(): Long {
+        return data.maxBy { it.questionId }?.questionId ?: 1
+    }
 
     private val data = mutableListOf<Question>()
 

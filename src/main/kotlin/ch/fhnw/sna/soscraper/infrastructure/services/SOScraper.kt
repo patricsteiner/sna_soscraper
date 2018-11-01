@@ -71,7 +71,7 @@ class SOScraper(val questionRepository: QuestionRepository, val tagRepository: T
         val mapper = ObjectMapper().registerModule(KotlinModule())
         val question : Question = mapper.readValue(item.toString())
         questionRepository.save(question)
-        question.tags.forEach {
+        question.tags.forEach { // TODO handle this elsewhere? TagRepo is actually only needed for export, so this could be created afterwards maybe?
             tagRepository.save(
                     it,
                     question.viewCount,

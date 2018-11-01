@@ -1,33 +1,37 @@
 package ch.fhnw.sna.soscraper.webapp
 
-import ch.fhnw.sna.soscraper.domain.Owner
-import ch.fhnw.sna.soscraper.domain.Question
 import ch.fhnw.sna.soscraper.domain.QuestionRepository
 import ch.fhnw.sna.soscraper.domain.TagRepository
 import ch.fhnw.sna.soscraper.infrastructure.exporter.EdgeTableExporter
 import ch.fhnw.sna.soscraper.infrastructure.exporter.NodeTableExporter
+import ch.fhnw.sna.soscraper.infrastructure.repositories.QuestionRepositoryImpl
 import ch.fhnw.sna.soscraper.infrastructure.services.SOScraper
 import org.springframework.core.io.FileSystemResource
 import org.springframework.http.MediaType
 import org.springframework.stereotype.Controller
 import org.springframework.ui.Model
-import org.springframework.web.bind.annotation.*
+import org.springframework.web.bind.annotation.GetMapping
+import org.springframework.web.bind.annotation.PostMapping
+import org.springframework.web.bind.annotation.RequestParam
+import org.springframework.web.bind.annotation.ResponseBody
 
 @Controller
-class QuestionController(val questionRepository: QuestionRepository, val tagRepository: TagRepository, val soScraper: SOScraper) {
+class QuestionController(val questionRepository: QuestionRepositoryImpl, val tagRepository: TagRepository, val soScraper: SOScraper) {
 
     @GetMapping
     fun index(model: Model): String {
-        val questions = questionRepository.findAll()
+        val questions = questionRepository.findTop100()
+        val maxId = questionRepository.findMaxId()
+        model.addAttribute("maxId", maxId)
         model.addAttribute("questions", questions)
         return "index"
     }
 
-    @GetMapping("/init")
+    /*@GetMapping("/init")
     fun init(): String {
         questionRepository.save(Question(Owner("", 1, "", 1, null, "", 1), 0, "", 1, 1, 1, 1, 1, "", 1, listOf(), 1, 1, false, 1, 1, 1, 1))
         return "redirect:/"
-    }
+    }*/
 
     @PostMapping("/scrape")
     fun scrape(@RequestParam firstId: Int, @RequestParam amount: Int): String {

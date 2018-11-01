@@ -1,8 +1,12 @@
 package ch.fhnw.sna.soscraper.domain
 
 import com.fasterxml.jackson.annotation.JsonProperty
+import org.springframework.data.annotation.Id
+import org.springframework.data.mongodb.core.mapping.Document
 
+@Document
 data class Question(
+        @Id @JsonProperty("question_id") val questionId: Long,
         @JsonProperty("owner") val owner: Owner,
         @JsonProperty("comment_count") val commentCount: Int,
         @JsonProperty("link") val link: String,
@@ -12,7 +16,6 @@ data class Question(
         @JsonProperty("answer_count") val answerCount: Int,
         @JsonProperty("accepted_answer_id") val acceptedAnswerId: Long,
         @JsonProperty("title") val title: String,
-        @JsonProperty("question_id") val questionId: Long,
         @JsonProperty("tags") val tags: List<String>,
         @JsonProperty("score") val score: Int,
         @JsonProperty("favorite_count") val favoriteCount: Int,
@@ -23,6 +26,7 @@ data class Question(
         @JsonProperty("bounty_closes_date") val bountyClosesDate: Long
 )
 
+//@Document
 data class Owner(
         @JsonProperty("user_type") val userType: String,
         @JsonProperty("user_id") val userId: Int,
@@ -33,6 +37,7 @@ data class Owner(
         @JsonProperty("accept_rate") val acceptRate: Int
 )
 
+//@Document
 data class BadgeCounts(
         @JsonProperty("gold") val gold: Int,
         @JsonProperty("silver") val silver: Int,

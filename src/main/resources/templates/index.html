@@ -4,9 +4,9 @@
 <body>
 <section>
     <hr>
-<h2>Question overview</h2>
+<h2>Latest 100 Questions</h2>
     <form th:action="@{/scrape}" method="post">
-        <input type="number" name="firstId" placeholder="first id to be scraped" required value="52720000"/>
+        <input type="number" name="firstId" placeholder="first id to be scraped" required th:value="${maxId}"/>
         <input type="number" name="amount" placeholder="amount of questions" required value="10"/>
         <input type="submit" value="scrape" />
     </form>
