@@ -14,7 +14,8 @@ class EdgeTableExporter(private val questionRepository: QuestionRepository, priv
             out.println(header)
             questionRepository.findAll().forEach {question ->
                 question.tags.forEach { tag ->
-                    out.println(question.questionId.toString() + ";" + tagRepository.find(tag)?.id)
+                    val tagData = tagRepository.find(tag) ?: throw IllegalStateException("Make sure to create and fill the TagRepository first")
+                    out.println(question.questionId.toString() + ";" + tagData.id)
                 }
             }
         }

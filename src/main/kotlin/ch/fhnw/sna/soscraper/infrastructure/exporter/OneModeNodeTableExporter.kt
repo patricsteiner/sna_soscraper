@@ -5,16 +5,17 @@ import java.io.File
 
 class OneModeNodeTableExporter(private val tagRepository: TagRepository) {
 
-    fun export(path: String) {
-        val header = "Id;Label;occurence;views;answered;unanswered;answeredRatio;bounty"
-        File(path).printWriter().use { out ->
+    fun export() : File {
+        val header = "Id;Label;occurrence;views;answered;unanswered;answeredRatio;bounty"
+        val file = File("nodes.csv")
+        file.printWriter().use { out ->
             out.println(header)
             tagRepository.findAll().forEach {
-                val unanswered = it.value.occurence - it.value.answered
-                val answeredRatio = it.value.answered.toFloat() / it.value.occurence
+                val unanswered = it.value.occurrence - it.value.answered
+                val answeredRatio = it.value.answered.toFloat() / it.value.occurrence
                 out.println(it.value.id.toString() + ";"
                         + it.key + ";"
-                        + it.value.occurence.toString() + ";"
+                        + it.value.occurrence.toString() + ";"
                         + it.value.views.toString() + ";"
                         + it.value.answered.toString() + ";"
                         + unanswered.toString() + ";"
@@ -22,6 +23,7 @@ class OneModeNodeTableExporter(private val tagRepository: TagRepository) {
                         + it.value.bounty.toString())
             }
         }
+        return file
     }
 
 }

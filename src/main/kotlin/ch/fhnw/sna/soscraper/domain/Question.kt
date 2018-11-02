@@ -26,7 +26,6 @@ data class Question(
         @JsonProperty("bounty_closes_date") val bountyClosesDate: Long
 )
 
-//@Document
 data class Owner(
         @JsonProperty("user_type") val userType: String,
         @JsonProperty("user_id") val userId: Int,
@@ -37,7 +36,6 @@ data class Owner(
         @JsonProperty("accept_rate") val acceptRate: Int
 )
 
-//@Document
 data class BadgeCounts(
         @JsonProperty("gold") val gold: Int,
         @JsonProperty("silver") val silver: Int,

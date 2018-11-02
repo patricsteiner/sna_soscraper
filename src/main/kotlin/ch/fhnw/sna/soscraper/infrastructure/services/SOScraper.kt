@@ -28,7 +28,7 @@ class SOScraper(val questionRepository: QuestionRepository, val tagRepository: T
             "filter" to "!gB7l(.eUN4A78AG1cjy.Zxgd3gyfuKaZ(XE" // this is a custom filter created on the stackexchange api doc website that delivers the data as defined in Question.kt
     )
 
-    fun scrape(firstId: Int, amount: Int) {
+    fun scrape(firstId: Int, amount: Int = 99) {
         var currentId = firstId
         val idsPerRequest = 99 // theoretical max is 100, but then URL can get too long, so i just use 99
         var totalReceivedQuestions = 0
@@ -71,14 +71,6 @@ class SOScraper(val questionRepository: QuestionRepository, val tagRepository: T
         val mapper = ObjectMapper().registerModule(KotlinModule())
         val question : Question = mapper.readValue(item.toString())
         questionRepository.save(question)
-        question.tags.forEach { // TODO handle this elsewhere? TagRepo is actually only needed for export, so this could be created afterwards maybe?
-            tagRepository.save(
-                    it,
-                    question.viewCount,
-                    question.isAnswered,
-                    question.bountyAmount
-            )
-        }
     }
 
 }

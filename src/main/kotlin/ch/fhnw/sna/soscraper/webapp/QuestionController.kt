@@ -1,9 +1,10 @@
 package ch.fhnw.sna.soscraper.webapp
 
-import ch.fhnw.sna.soscraper.domain.QuestionRepository
 import ch.fhnw.sna.soscraper.domain.TagRepository
 import ch.fhnw.sna.soscraper.infrastructure.exporter.EdgeTableExporter
 import ch.fhnw.sna.soscraper.infrastructure.exporter.NodeTableExporter
+import ch.fhnw.sna.soscraper.infrastructure.exporter.OneModeEdgeTableExporter
+import ch.fhnw.sna.soscraper.infrastructure.exporter.OneModeNodeTableExporter
 import ch.fhnw.sna.soscraper.infrastructure.repositories.QuestionRepositoryImpl
 import ch.fhnw.sna.soscraper.infrastructure.services.SOScraper
 import org.springframework.core.io.FileSystemResource
@@ -42,15 +43,30 @@ class QuestionController(val questionRepository: QuestionRepositoryImpl, val tag
     @GetMapping("/export/nodes", produces = [MediaType.APPLICATION_OCTET_STREAM_VALUE])
     @ResponseBody
     fun exportNodes(): FileSystemResource {
-        val nodeTableExporter = NodeTableExporter(questionRepository, tagRepository)
+        fillTagRepository()
+        val nodeTableExporter = OneModeNodeTableExporter(tagRepository)
         return FileSystemResource(nodeTableExporter.export())
     }
 
     @GetMapping("/export/edges", produces = [MediaType.APPLICATION_OCTET_STREAM_VALUE])
     @ResponseBody
     fun exportEdges(): FileSystemResource {
-        val edgeTableExporter = EdgeTableExporter(questionRepository, tagRepository)
+        fillTagRepository()
+        val edgeTableExporter = OneModeEdgeTableExporter(questionRepository, tagRepository)
         return FileSystemResource(edgeTableExporter.export())
+    }
+
+    private fun fillTagRepository() {
+        questionRepository.findAll().forEach { question ->
+            question.tags.forEach {
+                tagRepository.save(
+                        it,
+                        question.viewCount,
+                        question.isAnswered,
+                        question.bountyAmount
+                )
+            }
+        }
     }
 
 }
