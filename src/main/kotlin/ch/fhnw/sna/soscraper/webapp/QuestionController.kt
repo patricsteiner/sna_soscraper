@@ -28,12 +28,6 @@ class QuestionController(val questionRepository: QuestionRepositoryImpl, val tag
         return "index"
     }
 
-    /*@GetMapping("/init")
-    fun init(): String {
-        questionRepository.save(Question(Owner("", 1, "", 1, null, "", 1), 0, "", 1, 1, 1, 1, 1, "", 1, listOf(), 1, 1, false, 1, 1, 1, 1))
-        return "redirect:/"
-    }*/
-
     @PostMapping("/scrape")
     fun scrape(@RequestParam firstId: Int, @RequestParam amount: Int): String {
         soScraper.scrape(firstId, amount)

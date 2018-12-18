@@ -5,7 +5,7 @@ import java.io.File
 
 class OneModeNodeTableExporter(private val tagRepository: TagRepository) {
 
-    fun export() : File {
+    fun export(): File {
         val header = "Id;Label;occurrence;views;answered;unanswered;answeredRatio;bounty"
         val file = File("nodes.csv")
         file.printWriter().use { out ->
