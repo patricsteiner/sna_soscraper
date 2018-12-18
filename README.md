@@ -5,7 +5,10 @@
 - make sure application.properties has correct database configuration
 - build and run project with gradle
 
-## GUI
+## Usage
+Adjust the `SoScraperApplication` class to do whatever operations you like. By default, a webpage is started with a basic GUI:
+
+### GUI
 note that the frontend is just for testing, it has blocking operations and no error handling, but if you still want to use it, go ahead:
 - go to localhost:8080 to get an overwiev of the latests questions in the db
 - click "scrape" to get some more
