@@ -1,8 +1,6 @@
 package ch.fhnw.sna.soscraper.webapp
 
 import ch.fhnw.sna.soscraper.domain.TagRepository
-import ch.fhnw.sna.soscraper.infrastructure.exporter.EdgeTableExporter
-import ch.fhnw.sna.soscraper.infrastructure.exporter.NodeTableExporter
 import ch.fhnw.sna.soscraper.infrastructure.exporter.OneModeEdgeTableExporter
 import ch.fhnw.sna.soscraper.infrastructure.exporter.OneModeNodeTableExporter
 import ch.fhnw.sna.soscraper.infrastructure.repositories.QuestionRepositoryImpl
@@ -26,6 +24,20 @@ class QuestionController(val questionRepository: QuestionRepositoryImpl, val tag
         model.addAttribute("maxId", maxId)
         model.addAttribute("questions", questions)
         return "index"
+    }
+
+    @GetMapping("/stats")
+    @ResponseBody
+    fun stats(): Map<String, Map<String, Double>> {
+        fillTagRepository()
+        val tagRepository = tagRepository
+        val tags = tagRepository.findAll().values
+        return mapOf(
+                "occurence" to getStats(tags.map { it.occurrence }),
+                "views" to getStats(tags.map { it.views }),
+                "answered" to getStats(tags.map { it.answered }),
+                "bounty" to getStats(tags.map { it.bounty.toLong() })
+        )
     }
 
     @PostMapping("/scrape")
@@ -61,6 +73,14 @@ class QuestionController(val questionRepository: QuestionRepositoryImpl, val tag
                 )
             }
         }
+    }
+
+    private fun getStats(data: List<Long>): Map<String, Double> {
+        return mapOf(
+                "max" to data.max()!!.toDouble(),
+                "min" to data.min()!!.toDouble(),
+                "avg" to data.average()
+        )
     }
 
 }
