@@ -28,15 +28,27 @@ class QuestionController(val questionRepository: QuestionRepositoryImpl, val tag
 
     @GetMapping("/stats")
     @ResponseBody
-    fun stats(): Map<String, Map<String, Double>> {
+    fun stats(): Map<String, Map<String, Map<String, Double>>> {
         fillTagRepository()
         val tagRepository = tagRepository
         val tags = tagRepository.findAll().values
+        val questions = questionRepository.findAll()
         return mapOf(
-                "occurence" to getStats(tags.map { it.occurrence }),
-                "views" to getStats(tags.map { it.views }),
-                "answered" to getStats(tags.map { it.answered }),
-                "bounty" to getStats(tags.map { it.bounty.toLong() })
+                "question" to mapOf(
+                        "creationDate" to getStats(questions.map { it.creationDate }),
+                        "views" to getStats(questions.map { it.viewCount }),
+                        "answers" to getStats(questions.map { it.answerCount.toLong() }),
+                        "comments" to getStats(questions.map { it.commentCount.toLong() }),
+                        "favorite" to getStats(questions.map { it.favoriteCount.toLong() }),
+                        "score" to getStats(questions.map { it.score.toLong() }),
+                        "tags" to getStats(questions.map { it.tags.size.toLong() })
+                ),
+                "tag" to mapOf(
+                        "occurence" to getStats(tags.map { it.occurrence }),
+                        "views" to getStats(tags.map { it.views }),
+                        "answered" to getStats(tags.map { it.answered }),
+                        "bounty" to getStats(tags.map { it.bounty.toLong() })
+                )
         )
     }
 
