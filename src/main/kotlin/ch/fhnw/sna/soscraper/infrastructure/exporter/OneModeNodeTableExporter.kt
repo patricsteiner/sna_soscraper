@@ -6,7 +6,7 @@ import java.io.File
 class OneModeNodeTableExporter(private val tagRepository: TagRepository) {
 
     fun export(): File {
-        val header = "Id;Label;occurrence;views;answered;unanswered;answeredRatio;bounty"
+        val header = "Id;Label;occurrence;views;answered;unanswered;answeredRatio;bounty;weekDay;weekEnd"
         val file = File("nodes.csv")
         file.printWriter().use { out ->
             out.println(header)
@@ -20,7 +20,9 @@ class OneModeNodeTableExporter(private val tagRepository: TagRepository) {
                         + it.value.answered.toString() + ";"
                         + unanswered.toString() + ";"
                         + answeredRatio.toString() + ";"
-                        + it.value.bounty.toString())
+                        + it.value.bounty.toString()+ ";"
+                        + it.value.weekDay.toString()+ ";"
+                        + it.value.weekEnd.toString())
             }
         }
         return file

@@ -13,6 +13,8 @@ import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.RequestParam
 import org.springframework.web.bind.annotation.ResponseBody
+import java.time.DayOfWeek
+import java.time.LocalDate
 
 @Controller
 class QuestionController(val questionRepository: QuestionRepositoryImpl, val tagRepository: TagRepository, val soScraper: SOScraper) {
@@ -77,11 +79,14 @@ class QuestionController(val questionRepository: QuestionRepositoryImpl, val tag
     private fun fillTagRepository() {
         questionRepository.findAll().forEach { question ->
             question.tags.forEach {
+                val weekDay = LocalDate.ofEpochDay(question.creationDate).dayOfWeek in arrayOf(DayOfWeek.SATURDAY, DayOfWeek.SUNDAY)
                 tagRepository.save(
                         it,
                         question.viewCount,
                         question.isAnswered,
-                        question.bountyAmount
+                        question.bountyAmount,
+                        if (weekDay) 1 else 0,
+                        if (weekDay) 0 else 1
                 )
             }
         }
